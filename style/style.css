@@ -1,0 +1,8 @@
+@font-face { 
+    font-family: 'Montserrat';
+    src: url('/weather-app/assets/Montserrat/Montserrat-Italic-VariableFont_wght.ttf') format('truetype');
+    src: url('/weather-app/assets/Montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+}

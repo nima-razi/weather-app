@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#212529">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#212529">
+    <title>Weather App</title>
+    <link rel="shortcut icon" href="assets/images/icons8-sun-doodle-120.png" type="image/png">
+    <link rel=”mask-icon” href="assets/images/icons8-sun-doodle-120.png" color="#212529">
+    <link rel="apple-touch-icon" href="assets/images/icons8-sun-doodle-180.png">
+    <link rel="shortcut icon" href="assets/images/icons8-sun-doodle-120.png" type="image/png"/>
+    <link rel="stylesheet" href="style/bootstrap.min.css">
+    <link rel="stylesheet" href="style/style.css">
+</head>
+<body class="bg-dark text-light">
+    <div class="container col-md-5 d-flex justify-content-center align-items-center vh-100">
+        <div class="w-100">
+            <div class="hstack mb-4"><h1>Weather</h1></div>
+            <div class="input-group mt-3">
+                <button class="btn btn-outline-secondary" type="button" onclick="getLocation()">Locate</button>
+                <input type="text" class="form-control" id="city" list="city-list" placeholder="Enter a city" autofocus>
+                <datalist id="city-list"></datalist>
+                <button class="btn btn-secondary" type="button" onclick="getWeather()">Search</button>
+            </div>
+            <div class="vstack justify-content-center align-items-center">
+                <img class="img-fluid" id="weather-icon">
+                <div id="temp-div"></div>
+                <div id="weather-info"></div>
+                <div class="hstack overflow-scroll justify-content-between" id="hourly-forecast"></div>
+            </div>
+        </div>
+    </div>
+    <script src="scripts/bootstrap.bundle.min.js"></script>
+    <script src="scripts/city-list.js"></script>
+    <script src="scripts/search.js"></script>
+    <script src="scripts/locate.js"></script>
+</body>
+</html>
