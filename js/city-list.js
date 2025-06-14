@@ -2,7 +2,7 @@ let citiesData = {};
 const cityInput = document.getElementById('city');
 cityInput.disabled = true;
 
-fetch('scripts/countries.min.json')
+fetch('data/countries.min.json')
     .then(response => response.json())
     .then(data => {
         citiesData = data;
@@ -11,27 +11,33 @@ fetch('scripts/countries.min.json')
     .catch(error => console.error('Error loading cities:', error));
 
 let debounceTimer;
-cityInput.addEventListener('input', function() {
+cityInput.addEventListener('input', function () {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
         const input = this.value.toLowerCase();
         const datalist = document.getElementById('city-list');
-        datalist.innerHTML = ''; // Clear previous options
+        datalist.innerHTML = '';
 
-        if (input.length > 1 && Object.keys(citiesData).length) { // Check for loaded data
-            const fragment = document.createDocumentFragment(); // Use fragment for performance
-            for (let country in citiesData) {
+        if (input.length > 1 && Object.keys(citiesData).length) {
+            const fragment = document.createDocumentFragment();
+            let matchCount = 0;
+
+            outer: for (let country in citiesData) {
                 if (citiesData.hasOwnProperty(country)) {
-                    citiesData[country].forEach(city => {
-                        if (city.toLowerCase().startsWith(input)) {
+                    for (let city of citiesData[country]) {
+                        if (city.toLowerCase().includes(input)) {
                             const option = document.createElement('option');
                             option.value = `${city}, ${country}`;
                             fragment.appendChild(option);
+                            matchCount++;
+
+                            if (matchCount >= 10) break outer;
                         }
-                    });
+                    }
                 }
             }
-            datalist.appendChild(fragment); // Append all options at once
+
+            datalist.appendChild(fragment);
         }
-    }, 300); // 300ms debounce delay
+    }, 300);
 });
