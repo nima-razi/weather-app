@@ -12,14 +12,13 @@
         <div class="col-12 col-md-6 justify-content-center align-self-center">
             <h1>Search weather info</h1>
             <form id="weather-form" onsubmit="event.preventDefault(); getWeather();">
-                <input type="text" class="form-control mb-2" id="city" list="city-list" placeholder="Enter a city" autofocus>
+                <input type="text" class="form-control mb-2 bg-dark-subtle rounded-pill" id="city" list="city-list" placeholder="Enter a city" autofocus>
                 <datalist id="city-list"></datalist>
                 <div class="d-grid gap-1 d-lg-block">
-                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
-                    <button class="btn btn-danger" type="button" onclick="getLocation()"><i class="bi bi-geo-alt"></i> Locate</button>
+                    <button class="btn btn-primary rounded-pill" type="submit"><i class="bi bi-search"></i> Search</button>
+                    <button class="btn btn-danger rounded-pill" type="button" onclick="getLocation()"><i class="bi bi-geo-alt-fill"></i> Locate</button>
                 </div>
             </form> 
-
             <div class="vstack justify-content-center align-items-center">
                 <img class="img-fluid" id="weather-icon">
                 <div id="temp-div"></div>
