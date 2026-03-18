@@ -10,55 +10,74 @@ const apiKey = 'a2ed853528c8c6416f230af509878eac';
 // We'll store the Lat/Lon of the results here to use in getWeather
 let cityCoords = {}; 
 
-// 1. Live Autocomplete via Geocoding API
+// 1. Live Autocomplete via OpenWeather Geocoding API
 let debounceTimer;
 cityInput.addEventListener('input', function() {
     clearTimeout(debounceTimer);
-    const query = this.value.trim();
+    const selection = this.value.trim();
 
-    if (query.length < 3) return; // Wait for 3 chars to save API calls
+    // IMMEDIATE ACTION: Trigger weather search if user clicks a suggestion
+    if (cityCoords[selection]) {
+        getWeather();
+        return; 
+    }
+
+    if (selection.length < 3) {
+        datalist.innerHTML = ''; // Clear suggestions if input is too short
+        return; 
+    }
 
     debounceTimer = setTimeout(async () => {
         try {
+            // Use OpenWeather Geocoding API (more reliable with your existing key)
             const response = await fetch(
-                `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`
+                `https://api.openweathermap.org/geo/1.0/direct?q=${selection}&limit=5&appid=${apiKey}`
             );
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
             const cities = await response.json();
 
             datalist.innerHTML = '';
-            cityCoords = {}; // Clear previous coords
+            const newCoords = {}; 
 
             const fragment = document.createDocumentFragment();
             cities.forEach(city => {
+                // Create a readable name: "City Name, State (if exists), Country"
                 const displayName = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
                 
-                // Store coords using the display name as the key
-                cityCoords[displayName] = { lat: city.lat, lon: city.lon };
+                newCoords[displayName] = { lat: city.lat, lon: city.lon };
 
                 const option = document.createElement('option');
                 option.value = displayName;
                 fragment.appendChild(option);
             });
+
+            cityCoords = newCoords; 
             datalist.appendChild(fragment);
+            
         } catch (err) {
             console.error('Geocoding error:', err);
         }
-    }, 400); // Slightly longer debounce for network calls
+    }, 400); 
 });
 
 // 2. Main Weather Fetch
 async function getWeather() {
     const selection = cityInput.value;
+    
+    // Hide keyboard/datalist once a selection is made
+    cityInput.blur();
+
     let url, forecastUrl;
 
-    // Use Lat/Lon if we found them in the autocomplete, otherwise fallback to name
     if (cityCoords[selection]) {
         const { lat, lon } = cityCoords[selection];
         url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
         forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
     } else {
         const cityName = selection.split(',')[0].trim();
-        if (!cityName) return alert('Please enter a city');
+        if (!cityName) return;
         url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${apiKey}`;
         forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=${apiKey}`;
     }
