@@ -3,40 +3,78 @@ window.onload = function() {
     document.getElementById('city').value = '';
 };
 
-function getWeather() {
-    const apiKey = 'a2ed853528c8c6416f230af509878eac';
-    let cityInput = document.getElementById('city').value;
-    
-    // Extract the city name before the comma
-    const city = cityInput.split(',')[0].trim();
+const cityInput = document.getElementById('city');
+const datalist = document.getElementById('city-list');
+const apiKey = 'a2ed853528c8c6416f230af509878eac';
 
-    if (!city) {
-        alert('Please enter a city');
-        return;
+// We'll store the Lat/Lon of the results here to use in getWeather
+let cityCoords = {}; 
+
+// 1. Live Autocomplete via Geocoding API
+let debounceTimer;
+cityInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+
+    if (query.length < 3) return; // Wait for 3 chars to save API calls
+
+    debounceTimer = setTimeout(async () => {
+        try {
+            const response = await fetch(
+                `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`
+            );
+            const cities = await response.json();
+
+            datalist.innerHTML = '';
+            cityCoords = {}; // Clear previous coords
+
+            const fragment = document.createDocumentFragment();
+            cities.forEach(city => {
+                const displayName = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
+                
+                // Store coords using the display name as the key
+                cityCoords[displayName] = { lat: city.lat, lon: city.lon };
+
+                const option = document.createElement('option');
+                option.value = displayName;
+                fragment.appendChild(option);
+            });
+            datalist.appendChild(fragment);
+        } catch (err) {
+            console.error('Geocoding error:', err);
+        }
+    }, 400); // Slightly longer debounce for network calls
+});
+
+// 2. Main Weather Fetch
+async function getWeather() {
+    const selection = cityInput.value;
+    let url, forecastUrl;
+
+    // Use Lat/Lon if we found them in the autocomplete, otherwise fallback to name
+    if (cityCoords[selection]) {
+        const { lat, lon } = cityCoords[selection];
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+    } else {
+        const cityName = selection.split(',')[0].trim();
+        if (!cityName) return alert('Please enter a city');
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${apiKey}`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=${apiKey}`;
     }
 
-    const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
+    try {
+        const [weatherRes, forecastRes] = await Promise.all([fetch(url), fetch(forecastUrl)]);
+        const weatherData = await weatherRes.json();
+        const forecastData = await forecastRes.json();
 
-    fetch(currentWeatherUrl)
-        .then(response => response.json())
-        .then(data => {
-            displayWeather(data);
-        })
-        .catch(error => {
-            console.error('Error fetching current weather data:', error);
-            alert('Error fetching current weather data. Please try again.');
-        });
+        if (weatherData.cod !== 200) throw new Error(weatherData.message);
 
-    fetch(forecastUrl)
-        .then(response => response.json())
-        .then(data => {
-            displayHourlyForecast(data.list);
-        })
-        .catch(error => {
-            console.error('Error fetching hourly forecast data:', error);
-            alert('Error fetching hourly forecast data. Please try again.');
-        });
+        displayWeather(weatherData);
+        displayHourlyForecast(forecastData.list);
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
 }
 
 function displayWeather(data) {

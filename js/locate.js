@@ -24,9 +24,11 @@ function reverseGeocode(latitude, longitude) {
             if (data && data.address) {
                 // Set the city input field with the city name or town/village if city is unavailable
                 const city = data.address.city || data.address.town || data.address.village || data.address.hamlet;
-                if (city) {
-                    document.getElementById("city").value = city;
-                } else {
+                // Inside your reverseGeocode function in locate.js
+            if (city) {
+                document.getElementById("city").value = city;
+                getWeather(); // Automatically search once located!
+            } else {
                     alert("City not found.");
                 }
             } else {
