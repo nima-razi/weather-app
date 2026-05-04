@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+body {
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Badge styling */
+.search-history-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.2s ease-in-out;
+    background-color: #f0f0f0 !important;
+}
+
+.search-history-badge:hover {
+    background-color: #e8e8e8 !important;
+    transform: scale(1.05);
+}
+
+.badge-close {
+    font-size: 1.1em;
+    font-weight: bold;
+    opacity: 0.6;
+    transition: opacity 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.search-history-badge:hover .badge-close {
+    opacity: 1;
+    color: #dc3545;
+}
+
+#search-history {
+    min-height: 0;
+    margin-bottom: 0;
+}
+
+#search-history:not(:empty) {
+    margin-bottom: 1rem;
+}
+
+#search-history > button {
+    animation: slideIn 0.2s ease-in-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
